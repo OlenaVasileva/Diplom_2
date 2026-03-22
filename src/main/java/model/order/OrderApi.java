@@ -1,10 +1,9 @@
-package OrderTest;
+package model.order;
 
 
 import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import model.order.Order;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;

@@ -1,39 +1,49 @@
-import client.ApiUser;
-import io.qameta.allure.Description;
+package UserTest;
+
 import io.restassured.response.Response;
-import model.User;
-import model.UserCreds;
-import org.junit.After;
-import org.junit.Assert;
+import model.user.ApiUser;
+import model.user.User;
+import model.user.UserCreds;
+import model.user.UserLoginResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static model.UserGenegator.randomUser;
+
+import static model.user.UserCreds.credsFrom;
+import static model.user.UserGenegator.randomUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 public class LoginUserTest {
+
     private ApiUser apiUser = new ApiUser();
     private String accessToken;
 
     @Test
-    @Description ("авторизация с существующим логином")
-    public void loginPassLogin()
-    {
-        User user = randomUser();
-        Response response = apiUser.createNewUserStep(user);
-        Assert.assertEquals(200, response.statusCode());
-        
-    }
+    @DisplayName ("Авторизация с существующим логином")
+    public void existingUserLoginTest() {
+    User user = randomUser();
+    Response createResponse = apiUser.createNewUserStep(user);
+    assertEquals(200, createResponse.statusCode());
+
+    UserCreds creds = credsFrom(user);
+    Response loginResponse = apiUser.loginUserStep(creds);
+    String accessToken = loginResponse.as(UserLoginResponse.class).getAccessToken();
+    assertEquals(200, loginResponse.statusCode());
+    assertNotNull(accessToken, "Полученный токен пуст");
+}
 
     @Test
-    @Description("Авторизация с неверными данными")
-    public void loginFailLogin() {
+    @DisplayName("Авторизация с неверными данными")
+    public void invalidLoginTest() {
         UserCreds creds = new UserCreds("fhfbdfh@mail.ru", "some-password");
         Response loginResponse = apiUser.loginUserStep(creds);
         assertEquals(401, loginResponse.statusCode());
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         apiUser.deleteUserStep(accessToken);
     }

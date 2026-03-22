@@ -1,12 +1,9 @@
-package UserTest;
+package model.user;
 
 import io.qameta.allure.Step;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import model.user.User;
-import model.user.UpdateUserRequest;
-import model.user.UserCreds;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
