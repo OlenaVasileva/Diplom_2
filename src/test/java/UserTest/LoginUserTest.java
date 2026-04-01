@@ -1,17 +1,13 @@
 package UserTest;
 
 import io.restassured.response.Response;
-import model.user.ApiUser;
-import model.user.User;
-import model.user.UserCreds;
-import model.user.UserLoginResponse;
+import model.user.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
 import static model.user.UserCreds.credsFrom;
-import static model.user.UserGenegator.randomUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -20,13 +16,14 @@ public class LoginUserTest {
 
     private ApiUser apiUser = new ApiUser();
     private String accessToken;
+    private User user;
 
     @Test
     @DisplayName ("Авторизация с существующим логином")
     public void existingUserLoginTest() {
-    User user = randomUser();
-    Response createResponse = apiUser.createNewUserStep(user);
-    assertEquals(200, createResponse.statusCode());
+        this.user= UserGenerator.createRandom();
+        Response responseCreate = (Response) apiUser.createNewUserStep(this.user);
+        assertEquals(200, responseCreate.statusCode(), "Не удалось создать пользователя через API");
 
     UserCreds creds = credsFrom(user);
     Response loginResponse = apiUser.loginUserStep(creds);

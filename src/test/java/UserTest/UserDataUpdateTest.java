@@ -7,27 +7,28 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static model.user.UserCreds.credsFrom;
-import static model.user.UserGenegator.randomUser;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class UserDataUpdateTest {
     private ApiUser apiUser = new ApiUser();
     private String accessToken;
+    private User user;
 
     @Test
     @DisplayName("Изменение данных с авторизацией")
     public void existingUserLoginTest() {
-        User user = randomUser();
-        Response createResponse = apiUser.createNewUserStep(user);
-        assertEquals(200, createResponse.statusCode());
+        this.user = UserGenerator.createRandom();
+        Response responseCreate = (Response) apiUser.createNewUserStep(this.user);
+        assertEquals(200, responseCreate.statusCode(), "Не удалось создать пользователя через API");
 
         UserCreds creds = credsFrom(user);
         Response loginResponse = apiUser.loginUserStep(creds);
         String accessToken = loginResponse.as(UserLoginResponse.class).getAccessToken();
         assertEquals(200, loginResponse.statusCode());
 
-        UpdateUserRequest updatedUser = new UpdateUserRequest("yyyttt@mail.ru", "fgvhjь");
+        UpdateUserRequest updatedUser = new UpdateUserRequest("5grdth@mail.ru", "t54fg55vhjь");
         Response updateResponse = apiUser.updateUserStep(updatedUser, accessToken);
         assertEquals(200, updateResponse.statusCode());
 
@@ -37,9 +38,9 @@ public class UserDataUpdateTest {
     @DisplayName("Изменение данных без авторизации")
     public void existingUserLoginNotAuthorizationTest()
     {
-        User user = randomUser();
-        Response createResponse = apiUser.createNewUserStep(user);
-        assertEquals(200, createResponse.statusCode());
+        this.user= UserGenerator.createRandom();
+        Response responseCreate = (Response) apiUser.createNewUserStep(this.user);
+        assertEquals(200, responseCreate.statusCode(), "Не удалось создать пользователя через API");
 
         UserCreds creds = credsFrom(user);
         Response loginResponse = apiUser.loginUserStep(creds);

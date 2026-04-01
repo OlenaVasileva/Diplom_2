@@ -4,6 +4,7 @@ import io.restassured.response.Response;
 import model.order.Order;
 import model.order.OrderApi;
 import model.user.User;
+import model.user.UserGenerator;
 import model.user.UserLoginResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 
 import static model.user.UserCreds.credsFrom;
-import static model.user.UserGenegator.randomUser;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -19,6 +20,7 @@ public class CreateOrderTest {
     private OrderApi orderApi = new OrderApi();
     private String accessToken;
     private ApiUser apiUser = new ApiUser();
+    private User user;
 
 
     @Test
@@ -26,9 +28,9 @@ public class CreateOrderTest {
     public void createOrderWithAuthTest() {
 
 
-        User user = randomUser();
-        Response userResponse = apiUser.createNewUserStep(user);
-        assertEquals(200, userResponse.statusCode());
+        this.user=UserGenerator.createRandom();
+        Response responseCreate = (Response) apiUser.createNewUserStep(this.user);
+        assertEquals(200, responseCreate.statusCode(), "Не удалось создать пользователя через API");
 
         Response loginResponse = apiUser.loginUserStep(credsFrom(user));
         accessToken = loginResponse.as(UserLoginResponse.class).getAccessToken();
