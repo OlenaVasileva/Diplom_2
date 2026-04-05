@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 
 import static model.user.UserCreds.credsFrom;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.containsString;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -18,43 +21,49 @@ public class UserDataUpdateTest {
 
     @Test
     @DisplayName("Изменение данных с авторизацией")
-    public void existingUserLoginTest() {
+    public void updateUserDataWithAuthTest() {
         this.user = UserGenerator.createRandom();
-        Response responseCreate = (Response) apiUser.createNewUserStep(this.user);
+        Response responseCreate = apiUser.createNewUserStep(this.user);
         assertEquals(200, responseCreate.statusCode(), "Не удалось создать пользователя через API");
 
         UserCreds creds = credsFrom(user);
         Response loginResponse = apiUser.loginUserStep(creds);
-        String accessToken = loginResponse.as(UserLoginResponse.class).getAccessToken();
+        accessToken = loginResponse.as(UserLoginResponse.class).getAccessToken();
         assertEquals(200, loginResponse.statusCode());
 
-        UpdateUserRequest updatedUser = new UpdateUserRequest("5grdth@mail.ru", "t54fg55vhjь");
+        UpdateUserRequest updatedUser = new UpdateUserRequest("dvw1cо2vf@mail.ru", "s7b0g73421");
         Response updateResponse = apiUser.updateUserStep(updatedUser, accessToken);
-        assertEquals(200, updateResponse.statusCode());
+
+        updateResponse.then()
+                .assertThat()
+                .statusCode(200)
+                .body("user", notNullValue());
+        System.out.println(updateResponse.body().asString());
 
     }
 
     @Test
     @DisplayName("Изменение данных без авторизации")
-    public void existingUserLoginNotAuthorizationTest()
+    public void updateUserDataWithNotAuthTest()
     {
         this.user= UserGenerator.createRandom();
-        Response responseCreate = (Response) apiUser.createNewUserStep(this.user);
+        Response responseCreate = apiUser.createNewUserStep(this.user);
         assertEquals(200, responseCreate.statusCode(), "Не удалось создать пользователя через API");
 
-        UserCreds creds = credsFrom(user);
-        Response loginResponse = apiUser.loginUserStep(creds);
-        String accessToken = loginResponse.as(UserLoginResponse.class).getAccessToken();
-        assertEquals(200, loginResponse.statusCode());
+        UpdateUserRequest updatedUser = new UpdateUserRequest("teyty@mail.ru", "fhgj66hh");
+        Response updateResponse = apiUser.updateUserNotAuthorizationStep(updatedUser);
 
-        UpdateUserRequest updatedUser = new UpdateUserRequest("qbcg12o@mail.ru", "fgvhjь");
-        Response updateResponse = apiUser.updateUserNotAuthorizationStep(updatedUser, accessToken);
-        assertEquals(401, updateResponse.statusCode());
-
+        updateResponse.then()
+                .assertThat()
+                .statusCode(401)
+                .body("message", containsString("You should be authorised"));
+        System.out.println(updateResponse.body().asString());
     }
 
     @AfterEach
     public void tearDown() {
-        apiUser.deleteUserStep(accessToken);
+        if (accessToken != null) {
+            apiUser.deleteUserStep(accessToken);
+        }
     }
-}
+    }

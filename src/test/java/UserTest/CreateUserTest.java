@@ -1,17 +1,14 @@
 package UserTest;
 
 import io.restassured.response.Response;
-import model.user.ApiUser;
-import model.user.User;
-import model.user.UserGenerator;
-import model.user.UserLoginResponse;
+import model.user.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static model.user.UserCreds.credsFrom;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.equalTo;
 
 
 public class CreateUserTest {
@@ -24,13 +21,19 @@ public class CreateUserTest {
     public void createNewUserTest() {
 
         this.user = UserGenerator.createRandom();
-        Response responseCreate = (Response) apiUser.createNewUserStep(this.user);
-        assertEquals(200, responseCreate.statusCode(), "Не удалось создать пользователя через API");
-        
-        Response loginResponse = apiUser.loginUserStep(credsFrom(user));
-        accessToken = loginResponse.as(UserLoginResponse.class).getAccessToken();
-       assertEquals(200, loginResponse.statusCode());
+        Response createResponse = apiUser.createNewUserStep(this.user);
+
+        createResponse.then()
+                .assertThat()
+                .statusCode(200)
+                .body("user", notNullValue());
+
+        this.accessToken = createResponse.jsonPath().getString("accessToken");
+
+        System.out.println(createResponse.body().asString());
+
     }
+
     @Test
     @DisplayName("Создание пользователя ранее созданного")
     public void createUserTest() {
@@ -41,8 +44,14 @@ public class CreateUserTest {
                 .name("Ваня")
                 .build();
         Response response = apiUser.createNewUserStep(userToCreate);
-        assertEquals(403, response.statusCode());
+
+        response.then()
+                .assertThat()
+                .statusCode(403)
+                .body("message", equalTo("User already exists"));
+        System.out.println(response.body().asString());
     }
+
     @Test
     @DisplayName("Создание пользователя без пароля")
     public void createUserWithoutPasswordTest() {
@@ -52,11 +61,19 @@ public class CreateUserTest {
                 .name("Ваня")
                 .build();
         Response response = apiUser.createNewUserStep(userToCreate);
-        assertEquals(403, response.statusCode());
+
+        response.then()
+                .assertThat()
+                .statusCode(403)
+                .body("message", equalTo("Email, password and name are required fields"));
+        System.out.println(response.body().asString());
     }
+
     @AfterEach
     public void tearDown() {
-        apiUser.deleteUserStep(accessToken);
+        if (accessToken != null) {
+            apiUser.deleteUserStep(accessToken);
+        }
     }
 }
 

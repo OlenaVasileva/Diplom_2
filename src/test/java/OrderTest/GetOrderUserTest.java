@@ -40,7 +40,7 @@ public class GetOrderUserTest {
     public void getOrderUserAuth() {
 
         this.user=UserGenerator.createRandom();
-        Response responseCreate = (Response) apiUser.createNewUserStep(this.user);
+        Response responseCreate = apiUser.createNewUserStep(this.user);
         assertEquals(200, responseCreate.statusCode(), "Не удалось создать пользователя через API");
 
         Response loginResponse = apiUser.loginUserStep(credsFrom(user));
@@ -61,7 +61,9 @@ public class GetOrderUserTest {
     }
     @AfterEach
     public void tearDown() {
-        apiUser.deleteUserStep(accessToken);
+        if (accessToken != null) {
+            apiUser.deleteUserStep(accessToken);
+        }
     }
 }
 

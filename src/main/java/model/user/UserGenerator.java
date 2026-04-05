@@ -19,8 +19,4 @@ public class UserGenerator {
         System.out.println(user.getPassword());
         return user;
     }
-    public static void main(String[] args) {
-        User testUser = createRandom();
-        System.out.println("Сгенерированный пользователь: " + testUser.getName());
-    }
 }

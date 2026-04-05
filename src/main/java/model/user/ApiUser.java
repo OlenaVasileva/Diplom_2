@@ -19,7 +19,7 @@ public Response createNewUserStep(User user) {
             .contentType(JSON)
             .body(user)
             .when()
-            .post("api/auth/register");
+            .post("/api/auth/register");
 }
 
     @Step("Удаление пользователя")
@@ -28,7 +28,7 @@ public Response createNewUserStep(User user) {
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(JSON)
                 .when()
-                .delete("api/auth/user");
+                .delete("/api/auth/user");
     }
 
     @Step("Авторизация пользователя")
@@ -37,7 +37,7 @@ public Response createNewUserStep(User user) {
                 .contentType(JSON)
                 .body(creds)
                 .when()
-                .post("api/auth/login");
+                .post("/api/auth/login");
     }
     @Step("Изменение данных пользователя")
     public Response updateUserStep(UpdateUserRequest updateUserRequest, String accessToken){
@@ -46,14 +46,14 @@ public Response createNewUserStep(User user) {
                 .header("Authorization", accessToken)
                 .body(updateUserRequest)
                 .when()
-                .patch("api/auth/user");
+                .patch("/api/auth/user");
     }
     @Step("Изменение данных пользователя без авторизации")
-    public Response updateUserNotAuthorizationStep(UpdateUserRequest updateUserRequest, String accessToken){
+    public Response updateUserNotAuthorizationStep(UpdateUserRequest updateUserRequest){
         return given()
                 .contentType(JSON)
                 .body(updateUserRequest)
                 .when()
-                .patch("api/auth/user");
+                .patch("/api/auth/user");
     }
 }
